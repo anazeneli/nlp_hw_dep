@@ -1,6 +1,53 @@
 from collections import defaultdict
 import re, codecs
 
+class Vocab:
+    def __init__(self):
+        # load appropriate vocab files
+        self.words       = self.load_vocab("data/vocabs.word")
+        self.pos         = self.load_vocab("data/vocabs.pos")
+        self.labels      = self.load_vocab("data/vocabs.labels")
+        self.actions     = self.load_vocab("data/vocabs.actions")
+
+    def load_vocab(self, data_path):
+        sentences = open(data_path, 'r').read().strip().split('\n\n')
+
+        vocab     = defaultdict(int)
+
+        for sentence in sentences:
+            lines = sentence.split('\n')
+            for line in lines:
+                word, index = line.strip().split(' ')
+                assert isinstance(index, object)
+                vocab[word] = int(index)
+
+        return vocab
+
+    # change labels to their indices
+    def word2id(self, word):
+        return self.words[word] if word in self.words else self.words['<UNK>']
+
+    def pos2id(self, tag):
+        return self.pos[tag]
+
+    def label2id(self, label):
+        return self.labels[label]
+
+    def action2id(self, action):
+        return self.actions[action]
+
+    def num_words(self):
+        return len(self.words)
+
+    def num_pos(self):
+        return len(self.pos)
+
+    def num_labels(self):
+        return len(self.labels)
+
+    def num_actions(self):
+        return len(self.actions)
+
 
 class DependencyToken:
     def __init__(self, id, form, lemma, pos, cpos, feats=None, parent_id=None, relation=None, deps=None, misc=None):

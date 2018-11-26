@@ -1,5 +1,10 @@
 import os,sys
-from decoder import *
+from decoder import Decoder
+from net_properties import NetProperties
+import matplotlib.pyplot as plt
+from network import Network
+from utils import Vocab
+import pickle
 
 class DepModel:
     def __init__(self):
@@ -25,7 +30,34 @@ class DepModel:
         return [0]*len(self.actions)
 
 if __name__=='__main__':
-    m = DepModel()
+    # define word, pos, and label embeddings
+    # define hidden layer and minibatch size
+    we, pe, le, h1, h2, mb = 64, 32, 32, 200, 200, 1000
+    net_properties = NetProperties(we, pe, le, h1, h2, mb)
+    # define epochs
+    epochs = 7
+
+    data_file = "data/train.data"
+
     input_p = os.path.abspath(sys.argv[1])
     output_p = os.path.abspath(sys.argv[2])
+    model_path = os.path.abspath(sys.argv[3])
+
+    # creating vocabulary file
+    # already created with train_file
+    vocab = Vocab()
+
+    # writing properties and vocabulary file into pickle
+    pickle.dump((vocab, net_properties), open("vocab_path", 'w'))
+
+    # constructing network
+    network = Network(vocab, net_properties)
+
+    # training
+    network.train(data_file, epochs)
+
+    # saving network
+    network.save(model_path)
+
+    m = DepModel()
     Decoder(m.score, m.actions).parse(input_p, output_p)
