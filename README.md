@@ -24,13 +24,14 @@ python ../../setup.py build --build-dir=.. --skip-build install
 export DYLD_LIBRARY_PATH=$pth/dynet/:$DYLD_LIBRARY_PATH  
 export LD_LIBRARY_PATH=$pth/dynet/:$LD_LIBRARY_PATH  
 
-Vocabulary Creation for Features  
-Deep networks work with vectors, not strings. Therefore, first you have to
-create vocabularies for word features, POS features, dependency label features
-and parser actions.
-Run the following command:
-python src/gen_vocab.py trees/train.conll data/vocabs
-After that, you should have the following files:  
+Vocabulary Creation for Features   
+Deep networks work with vectors, not strings. Therefore, first you have to  
+create vocabularies for word features, POS features, dependency label features  
+and parser actions.  
+Run the following command:  
+python src/gen_vocab.py trees/train.conll data/vocabs  
+  
+After that, you should have the following files:    
 • data/vocabs.word  
 • data/vocabs.pos  
 • data/vocabs.labels  

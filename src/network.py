@@ -76,7 +76,7 @@ class Network:
         plt.ion()
         ax = plt.gca()
         ax.set_xlim([0, 10])
-        ax.set_ylim([0, 3])
+        ax.set_ylim([0, 5])
         plt.title("Loss over time")
         plt.xlabel("Minibatch")
         plt.ylabel("Loss")
@@ -92,8 +92,8 @@ class Network:
             step = 0
             for line in train_data:
                 fields = line.split(' ')
-                features, action = fields[:-1], fields[-1]
-                gold_label = self.vocab.action2id(action)
+                features, label = fields[:-1], fields[-1]
+                gold_label = self.vocab.action2id(label)
                 result = self.build_graph(features)
 
                 # getting loss with respect to negative log softmax function and the gold label.
@@ -138,6 +138,31 @@ class Network:
             # there are still some minibatch items in the memory but they are smaller than the minibatch size
             # so we ask dynet to forget them
             dynet.renew_cg()
+
+    def decode(self, words):
+        # first putting two start symbols
+        words = ['<s>', '<s>'] + words + ['</s>', '</s>']
+        tags = ['<s>', '<s>']
+
+        for i in range(2, len(words) - 2):
+            features = words[i - 2:i + 3] + tags[i - 2:i]
+
+            # running forward
+            output = self.build_graph(features)
+
+            # getting list value of the output
+            scores = output.npvalue()
+
+            # getting best tag
+            best_tag_id = np.argmax(scores)
+
+            # assigning the best tag
+            tags.append(self.vocab.tagid2tag_str(best_tag_id))
+
+            # refresh dynet memory (computation graph)
+            dynet.renew_cg()
+
+        return tags[2:]
 
     def load(self, filename):
         self.model.populate(filename)
